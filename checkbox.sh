@@ -45,9 +45,60 @@ utils() {
         local value="${1}" && shift
         local new_array=()
 
+<<<<<<< HEAD
         for array in "${@}"; do
             if [[ "${value}" != "${array}" ]]; then
                 new_array+=("${array}")
+=======
+    if value_in_array "$index" "${selected_options[@]}"; then
+        content+="$color    $SELECTED $option\n"
+
+    else
+        content+="$color    $UNSELECTED $option\n"
+    fi
+}
+
+set_line_color() {
+    if $has_multiple_options && $select_mode_on; then
+        color=$GREEN
+
+    elif $has_multiple_options && $unselect_mode_on; then
+        color=$RED
+
+    else
+        color=$BLUE
+    fi
+}
+
+select_many_options() {
+    if ! value_in_array "$cursor" "${selected_options[@]}" \
+        && $has_multiple_options && $select_mode_on; then
+            selected_options+=("$cursor")
+
+        elif value_in_array "$cursor" "${selected_options[@]}" \
+            && $has_multiple_options && $unselect_mode_on; then
+                    selected_options=($( array_without_value "$cursor" "${selected_options[@]}" ))
+    fi
+}
+
+set_options() {
+    if ! [[ $options_input == "" ]]; then
+        options=()
+
+        local temp_options=$( echo "${options_input#*=}" | sed "s/\\a//g;s/\\b//g;s/\\f//g;s/\\n//g;s/\\r//g;s/\\t//g" )
+        temp_options=$( echo "$temp_options" | sed "s/|\+/|/g" )
+        temp_options=$( echo "$temp_options" | tr "\n" "|" )
+        IFS="|" read -a temp_options <<< "$temp_options"
+
+        for index in ${!temp_options[@]}; do
+            local option=${temp_options[index]}
+
+            if [[ ${option::1} == "+" ]]; then
+                if $has_multiple_options || [[ -z $selected_options ]]; then
+                    selected_options+=("$index")
+                fi
+                option=${option:1}
+>>>>>>> bc898f23f3904937950d1350b55c16dc099c3c56
             fi
         done
 
